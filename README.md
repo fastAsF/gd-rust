@@ -8,5 +8,5 @@
 
 `rustup default stable-i686-pc-windows-msvc`
 
-also to build this lib you will need **[https://clang.llvm.org/](clang)** so make sure to have!
+also to build this lib you will need **[clang]([clang](https://clang.llvm.org/))** so make sure to have!
 
