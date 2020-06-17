@@ -1,23 +1,11 @@
 use gdnative::*;
 
-#[derive(NativeClass)]
-#[inherit(Node)]
-pub struct InjectClass;
-
-#[methods]
-impl InjectClass {
-    fn _init(_owner: Node) -> Self {
-        InjectClass
-    }
-
-    #[export]
-    fn _ready(&self, _owner: Node) {
-        godot_print!("Injected to Node");
-    }
-}
+mod inject_class;
+// mod player;
 
 fn init(handle: gdnative::init::InitHandle) {
-    handle.add_class::<InjectClass>();
+    handle.add_class::<inject_class::InjectClass>();
+    // handle.add_class::<player::Player>();
 }
 
 godot_gdnative_init!();
