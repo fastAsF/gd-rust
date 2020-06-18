@@ -5,7 +5,6 @@ use gdnative::*;
 #[user_data(user_data::MutexData<Player>)]
 #[register_with(Self::register_player)]
 pub struct Player {
-    #[property(default = 400.0)]
     sensitivity_x: f64,
     sensitivity_y: f64,
     invert_y_axis: bool,
@@ -17,7 +16,6 @@ pub struct Player {
     forward_velocity: i64,
     walk_speed: i64,
     maximum_walk_speed: i64,
-    screen_size: Vector2,
 }
 
 #[methods]
@@ -31,14 +29,23 @@ impl Player {
 
     fn _init(_owner: Area2D) -> Self {
         Player {
-            walk_speed: 400,
+            sensitivity_x: 0.5,
+            sensitivity_y: 0.5,
+            invert_y_axis: false,
+            exit_on_escape: false,
+            maximum_y_look: 45.,
+            accelaration: 20,
+            jump_speed: 1,
             velocity: Vector3::new(0., 0., 0.),
+            forward_velocity: 20,
+            walk_speed: 20,
+            maximum_walk_speed: 20,
         }
     }
 
     #[export]
-    unsafe fn _ready(&mut self, owner: Area2D) {
-        owner.hide();
+    unsafe fn _ready(&mut self, _owner: Area2D) {
+        // owner.hide();
     }
 
     #[export]
@@ -50,36 +57,40 @@ impl Player {
             if self.walk_speed > self.maximum_walk_speed {
                 self.walk_speed = self.maximum_walk_speed;
             }
-            self.velocity.x =
-                -gdnative::Spaital::get_global_transform().basis.z.x * self.walk_speed;
-            self.velocity.z =
-                -gdnative::Spaital::get_global_transform().basis.z.z * self.walk_speed;
+            self.velocity.x = -gdnative::Spatial::new().get_global_transform().basis.z().x
+                * self.walk_speed as f32;
+            self.velocity.z = -gdnative::Spatial::new().get_global_transform().basis.z().z
+                * self.walk_speed as f32;
         }
         if Input::is_action_pressed(&input, GodotString::from_str("ui_down")) {
             self.walk_speed += self.accelaration;
             if self.walk_speed > self.maximum_walk_speed {
                 self.walk_speed = self.maximum_walk_speed;
             }
-            self.velocity.x = gdnative::Spaital::get_global_transform().basis.z.x * self.walk_speed;
-            self.velocity.z = gdnative::Spaital::get_global_transform().basis.z.z * self.walk_speed;
+            self.velocity.x = gdnative::Spatial::new().get_global_transform().basis.z().x
+                * self.walk_speed as f32;
+            self.velocity.z = gdnative::Spatial::new().get_global_transform().basis.z().z
+                * self.walk_speed as f32;
         }
         if Input::is_action_pressed(&input, GodotString::from_str("ui_left")) {
             self.walk_speed += self.accelaration;
             if self.walk_speed > self.maximum_walk_speed {
                 self.walk_speed = self.maximum_walk_speed;
             }
-            self.velocity.x =
-                -gdnative::Spaital::get_global_transform().basis.x.x * self.walk_speed;
-            self.velocity.z =
-                -gdnative::Spaital::get_global_transform().basis.x.z * self.walk_speed;
+            self.velocity.x = -gdnative::Spatial::new().get_global_transform().basis.x().x
+                * self.walk_speed as f32;
+            self.velocity.z = -gdnative::Spatial::new().get_global_transform().basis.x().z
+                * self.walk_speed as f32;
         }
         if Input::is_action_pressed(&input, GodotString::from_str("ui_right")) {
             self.walk_speed += self.accelaration;
             if self.walk_speed > self.maximum_walk_speed {
                 self.walk_speed = self.maximum_walk_speed;
             }
-            self.velocity.x = gdnative::Spaital::get_global_transform().basis.x.x * self.walk_speed;
-            self.velocity.z = gdnative::Spaital::get_global_transform().basis.x.z * self.walk_speed;
+            self.velocity.x = gdnative::Spatial::new().get_global_transform().basis.x().x
+                * self.walk_speed as f32;
+            self.velocity.z = gdnative::Spatial::new().get_global_transform().basis.x().z
+                * self.walk_speed as f32;
         }
 
         if !Input::is_action_pressed(&input, GodotString::from_str("ui_right"))
@@ -91,7 +102,14 @@ impl Player {
             self.velocity.z = 0.;
         }
 
-        self.velocity =
-            gdnative::KinematicBody::move_and_slide(&self.velocity, Vector3::new(0, 1, 0));
+        self.velocity = gdnative::KinematicBody::move_and_slide(
+            &mut KinematicBody::new(),
+            Vector3::new(0., 1., 0.),
+            Vector3::new(0., 0., 0.),
+            false,
+            10,
+            10.,
+            false,
+        );
     }
 }

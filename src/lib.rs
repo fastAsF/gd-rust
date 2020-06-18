@@ -1,11 +1,11 @@
 use gdnative::*;
 
 mod inject_class;
-// mod player;
+mod player;
 
 fn init(handle: gdnative::init::InitHandle) {
     handle.add_class::<inject_class::InjectClass>();
-    // handle.add_class::<player::Player>();
+    handle.add_class::<player::Player>();
 }
 
 godot_gdnative_init!();
